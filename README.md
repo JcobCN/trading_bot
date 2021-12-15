@@ -1,6 +1,11 @@
-# Wallet tracked Buy bot
+# Trading Bot 
+Requirement : 
+1. The program should have a buy option where the user can put how much I want to spend / or how many shares that I will like to buy of my token.
+2. The program should have a sell option where I can choose how many shares I will like sell, as long as there are tokens in the wallet of course with enough bnb to cover the fees, etc.
+3. The prorgam should efficiently be able to use the bot with a minimum of 500 wallets being done at one time. Total wallet count could reach to 3000.
+4. The program will have control panel to also read how much BNB is in each wallet and how much token shares are in that same wallet for my own crypto token
 
-Wallet tracked bot is a bot which it can do type of market manipulation where an entity can enter into a transaction in advance of a pending or incoming order from the specific wallets that will or may impact the price of the order.
+Trading bot is a bot which it can do type of market manipulation where an entity can enter into a transaction in advance of a pending or incoming order from the specific wallets that will or may impact the price of the order.
 
 ## IMPORTANT NOTES BEFORE RUNNING THE BOT !!!
 
@@ -17,7 +22,7 @@ Wallet tracked bot is a bot which it can do type of market manipulation where an
 1) Download & Install Node.js - https://nodejs.org/en/
 
 2) Extract the bot zip / download contents to a folder, example 
-C:\users\username\Downloads\BHG-wallet-tracked-bot
+C:\users\username\Downloads\trading-bot
 
 3) open the command prompt to install the necessary modules for the bot (it should be in the same directory it was earlier when you copy the bot)
 
@@ -34,25 +39,8 @@ $ npm start
 # Usage
 
 
-1. You have to input the information to run the bot.
-
-```
-- Min BNB to follow : Minimum bnb amount of transactions you want to follow. (E.g. 2 BNB : follow more than 2 BNB transactions)
-
-- Wallet Memory
-
-Please add wallet address you want on the wallet memory
- ```
-
-2. if you complete the setting of bot,  you can click the "Start bot" to run the bot  
-
-*** setting ***
-
-Reset or clear the bot's data if you want.
-
 
 # Test
 
-1) IF you want to TEST the bot using BNB / BUSD, then ADD the BUSD custom token to your MetaMask (0xe9e7cea3dedca5984780bafc599bd69add087d56)
-
+1) IF you want to TEST the bot using BNB / BUSD, then ADD the BUSD custom token to your MetaMask 
 2) Run the bot using the to_Purchase value of the BUSD token contract. This works because liquidity is frequently added to this pool.
