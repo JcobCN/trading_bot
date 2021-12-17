@@ -1,10 +1,10 @@
 const express = require('express');
-const BotController = require('../controllers/botController');
+const BotController = require('../controllers/botCo');
 
 const router = new express.Router();
 
-router.post('/startFront', BotController.startFront);
-router.post('/stopFront', BotController.stopFront);
-router.get('/getFrontStatus', BotController.getFrontStatus);
+router.post('/startBot', BotController.startBot);
+router.get('/stopBot', BotController.stopBot);
+router.get('/getBotStatus', BotController.getBotStatus);
 
 module.exports = router;

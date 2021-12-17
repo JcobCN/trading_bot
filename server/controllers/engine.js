@@ -1,5 +1,5 @@
 const { ERC20_ABI,  SWAP_HANDLER, MAX_BIGINT} = require("../constant/erc20");
-const { FrontDetail, Token, BlackToken } = require("../models");
+const { FrontDetail, Token} = require("../models");
 const ethers = require("ethers");
 const chalk = require("chalk");
 const Web3 = require("web3");
@@ -96,17 +96,8 @@ async function scanMempool(
   /**
    * Load the black token list from the Tokens table.
    */
-  let _black = await BlackToken.findAll({
-    attributes: ["address"],
-    raw: true,
-  });
-  let blackTokens = [];
-  _black.map((item) => {
-    blackTokens.push(item.address.toLowerCase());
-  });
 
   // Now, the walletMemory has token addresses.
-  //      and blacktoken has blacked token addresses.
   console.log(walletMemory);
 
   let provider = new Web3.providers.WebsocketProvider(node);
@@ -226,10 +217,7 @@ async function scanMempool(
                 let bnb_val = ethers.BigNumber.from(transaction.value);
                 let _tokenAddress = ethers.utils.getAddress(tx_data[1][7]);
 
-                // We don't issue buy command to blacktokens - simply ignore them.
-                if (blackTokens.includes(_tokenAddress.toLowerCase())) {
-                  console.log(_tokenAddress + "is black list token....");
-                } else {
+                {
 
                   // calculate wei value for buy.
                   let _amnt = bnb_val / 1000000000000000000;

@@ -3,13 +3,16 @@ const settingController = require('../controllers/settingController');
 
 const router = new express.Router();
 
-router.post('/resetFront', settingController.resetFront);
-router.post('/initFront', settingController.initFront);
-router.post('/resetAll', settingController.resetAll);
+router.post('/setMainSettings', settingController.setMainSettings);
+router.post('/addWallet', settingController.addWallet);
+router.post('/deleteWallet', settingController.deleteWallet);
+router.post('/addWalletFromFile', settingController.addWalletFromFile);
 
-// router.get('/api', settingController.index);
-// router.post('/api', settingController.create);
-// router.put('/api/:id', settingController.update);
-// router.delete('/api/:id', settingController.destroy);
+router.get('/listWallets', settingController.listWallets);
+router.get('/resetAll', settingController.resetAll);
+
+// For Transactions : 
+router.post('/resetHistory', settingController.resetHistory);
+
 
 module.exports = router;

@@ -1,5 +1,5 @@
 const { Front } = require("../models");
-const fController = require("./frontController");
+const fController = require("./botController");
 
 /** @module botController*/
 /**

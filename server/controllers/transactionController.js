@@ -1,35 +1,62 @@
-const { FrontDetail } = require('../models');
-
-/** @module transactionController */
-
-/** 
- * <pre>
- * APIs for transactions
- * API prefix : /transactions
- * Provided APIs :  front
- * </pre>
- */
+const { Transaction } = require("../models");
+const app = require("../app.js");
 
 
-module.exports = {
 
 /**
  * @export @function API: /transactions/front
- * @description List all of the front detail information.  
+ * @description 
+ * <pre>
+ *  List all of the front detail information.  
+ * </pre>
  * @return : transaction list (timestamp, token, action, price, transaction, other)
  * @return : Error message on error.
  */
-    front(req, res) {
+function listTransactions(req, res) {
 
-        // Retrieve all of the front detail information from dataase.
-        FrontDetail.findAll({})
+    // Retrieve all of the front detail information from dataase.
+    Transaction.findAll({})
         .then(transactions => res.status(201).json({
             error: false,
-            data : transactions
+            data: transactions
         }))
         .catch(error => res.json({
             error: true,
             message: error
         }));
-    },
 }
+
+/**
+ * @export @function API: /transactions/clearHistory
+ * @description 
+ * <pre>
+ *  Reset the transaction history
+ * </pre>
+ * @param {*} req 
+ * @param {*} res 
+ */
+function clearHistory(req, res) {
+    // Remove all of the Front running Transaction History data from database.  
+    Transaction.destroy({
+        where: {},
+        truncate: true,
+    })
+        .then((status) =>
+            res.status(201).json({
+                error: false,
+                message: "Transaction History has been deleted",
+            })
+        )
+        .catch((error) =>
+            res.json({
+                error: true,
+                message: error,
+            })
+        );
+    sendUpdateMessage();
+}
+
+module.exports = {
+    listTransactions,
+    clearHistory,
+};

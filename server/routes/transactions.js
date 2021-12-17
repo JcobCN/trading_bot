@@ -3,6 +3,7 @@ const transactionController = require('../controllers/transactionController');
 
 const router = new express.Router();
 
-router.get('/front', transactionController.front);
+router.get('/listTransactions', transactionController.listTransactions);
+router.get('/clearHistory', transactionController.clearHistory);
 
 module.exports = router;

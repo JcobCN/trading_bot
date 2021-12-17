@@ -6,7 +6,7 @@ var env = require('dotenv').load();
 const cors = require('cors');
 const expressWs = require('express-ws');
 const http = require ('http');
-const botController = require('./controllers/botController.js');
+const botController = require('./controllers/botCo.js');
 var port = process.env.PORT || 8080;
 
 // models
@@ -38,7 +38,6 @@ app.use(cors());
 app.use('/setting', settingRoute);
 app.use('/bots', botRoute);
 app.use('/transactions',transactionRoute);
-app.use('/tokens',tokenRoute);
 
 // index path
 app.get('/', function(req, res){

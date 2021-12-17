@@ -5,7 +5,7 @@ Requirement :
 3. The prorgam should efficiently be able to use the bot with a minimum of 500 wallets being done at one time. Total wallet count could reach to 3000.
 4. The program will have control panel to also read how much BNB is in each wallet and how much token shares are in that same wallet for my own crypto token
 
-Trading bot is a bot which it can do type of market manipulation where an entity can enter into a transaction in advance of a pending or incoming order from the specific wallets that will or may impact the price of the order.
+Trading bot is a bot which can do Buy and Sell operations automatically.
 
 ## IMPORTANT NOTES BEFORE RUNNING THE BOT !!!
 

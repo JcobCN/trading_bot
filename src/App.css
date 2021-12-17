@@ -1,0 +1,116 @@
+.sticky-column {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0
+}
+
+.container {
+    border: 1px solid #eeccee;
+    max-height: 300px;
+    overflow-y: scroll;
+    width: 100%;
+}
+
+.datatable{
+  text-align: center;
+}
+
+.address_text{
+  width : 50%;
+}
+
+.start_button{
+  width:50%;
+  right : 0;
+}
+
+
+.short-input {
+  width: 40%;
+  margin: 10px;
+}
+
+thead:nth-last-child(1) {
+ display: none;
+}
+
+.hide {
+  display: none;
+}
+
+.section_radio {
+
+}
+
+.sticky-column {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0
+}
+
+.container {
+    border: 1px solid #eeccee;
+    max-height: 300px;
+    overflow-y: scroll;
+    width: 100%;
+}
+
+.datatable{
+  text-align: center;
+}
+
+.address_text{
+  width : 50%;
+}
+
+.start_button{
+  width:50%;
+  right : 0;
+}
+
+thead:nth-last-child(1) {
+ display: none;
+}
+
+.setting-label{
+  font-size: 1.2rem;
+}
+
+.setting-btn {
+  width: 180px;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+/* Styles go here */
+.me-auto {
+    margin-right: 0px;
+}
+
+.tab-content {
+    margin : 10px;
+    margin-right : 30px
+}
+
+.section_gasSetting {
+    display: flex;
+}
+.section_gasSetting_title {
+    padding: auto;
+    margin-right: 0.5em;
+}
+.section_gasSetting_radio {
+    display: flex;
+    flex-direction: column;
+}
+.parameter-section{
+    /* display: flex; */
+}
+.btn_start {
+    height: 40px;
+    margin-left: 20px;
+    align-self: center;
+
+}
