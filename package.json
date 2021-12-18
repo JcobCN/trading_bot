@@ -59,8 +59,8 @@
     "sequelize-cli": "^5.5.0"
   },
   "scripts": {
-    "start-devserver": "node server/app.js",
-    "start-server": "nodemon server/app.js --watch server/*",
+    "start-server": "node server/app.js",
+    "start-devserver": "nodemon server/app.js --watch server/*",
     "start-front": "react-scripts start",
     "start": "concurrently \"npm run start-devserver\" \"npm run start-front\" --kill-others --kill-others-on-fail",
     "safe": "node server/test.js",

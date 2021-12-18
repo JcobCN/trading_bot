@@ -1,5 +1,5 @@
 const express = require('express');
-const BotController = require('../controllers/botCo');
+const BotController = require('../controllers/botController');
 
 const router = new express.Router();
 

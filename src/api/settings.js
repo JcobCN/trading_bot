@@ -8,7 +8,6 @@ import { API_URL, client } from "./api";
 export async function listWallets() {
   try {
     let res = await client.get(`${API_URL}/settings/listWallets`);
-    console.log(res)
     let data = res.data.data;
     return data;
   } catch (err) {
@@ -19,18 +18,18 @@ export async function listWallets() {
 export async function detailWallet(address) {
   try {
     await client.post(`${API_URL}/settings/detailWallet`, {
-      address: address
+      walletAddress: walletAddress
     });
   } catch (err) {
     console.log(err);
   }
 }
 
-export async function addWallet(address, privateKey) {
+export async function addWallet(walletAddress, walletPrivateKey) {
   try {
     await client.post(`${API_URL}/settings/addWallet`, {
-      address: address,
-      privateKey: privateKey
+      walletAddress: walletAddress,
+      walletPrivateKey: walletPrivateKey
     });
   } catch (err) {
     console.log(err);
@@ -40,7 +39,7 @@ export async function addWallet(address, privateKey) {
 export async function deleteWallet(address) {
   try {
     await client.post(`${API_URL}/settings/deleteWallet`, {
-      address: address
+      walletAddress: walletAddress
     });
   } catch (err) {
     console.log(err);
@@ -61,9 +60,13 @@ export async function deleteWallet(address) {
   }
 }
 
-export async function getMainSettings () {
+/**
+ * 
+ * @returns Main Settings Data.
+ */
+export async function getMainSetting () {
   try {
-    let res = await client.get(`${API_URL}/settings/getMainSettings`);
+    let res = await client.get(`${API_URL}/settings/getMainSetting`);
     console.log(res)
     let data = res.data.data;
     return data;
@@ -71,13 +74,14 @@ export async function getMainSettings () {
     console.log(err);
   }
 }
+
 /**
  * @extern 
  * @param {String} mainWalletAddress 
  * @param {String} mainWalletPrivateKey 
  * @param {String} tokenAddress 
  */
-export async function setMainSettings(
+export async function setMainSetting(
   mainWalletAddress, 
   mainWalletPrivateKey,
   tokenAddress,
@@ -85,7 +89,7 @@ export async function setMainSettings(
   tokenSymbol
 ) {
   try {
-    await client.post(`${API_URL}/settings/setMainWallet`, {
+    await client.post(`${API_URL}/settings/setMainSetting`, {
       mainWalletAddress: mainWalletAddress,
       mainWalletPrivateKey : mainWalletPrivateKey,
       tokenAddress : tokenAddress,

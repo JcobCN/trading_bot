@@ -6,7 +6,7 @@ import Tab from 'react-bootstrap/Tab'
 import { MDBDataTableV5 } from "mdbreact";
 import Web3 from "web3";
 import {
-  getMainSettings, setMainSettings,
+  getMainSetting, setMainSetting,
   addWallet, listWallets, deleteWallet, addWalletFromFile,
   detailWallet, 
   resetAllAPI
@@ -37,16 +37,16 @@ const Settings = () => {
     resetAllAPI();
   };
 
-  console.log(wallets);
+  // console.log(wallets);
 
   var rows = wallets.map((item) => {
     item.addressHash = (
       <a
-        href={CONFIG.EXPLORER_ADDR + item.address}
+        href={CONFIG.EXPLORER_ADDR + item.walletAddress}
         target="_blank"
         rel="noopener noreferrer"
       >
-        {item.address}
+        {item.walletAddress}
       </a>
     );
 
@@ -55,14 +55,14 @@ const Settings = () => {
         <Button
           variant="info"
           size="sm"
-          onClick={() => detail_Wallet(item.address)}
+          onClick={() => detail_Wallet(item.walletAddress)}
         >
           Detail
         </Button>
         <Button
           variant="danger"
           size="sm"
-          onClick={() => delete_Wallet(item.address)}
+          onClick={() => delete_Wallet(item.walletAddress)}
         >
           Delete
         </Button>
@@ -117,8 +117,17 @@ const Settings = () => {
       setWallets(items);
   };
 
-  const load_MainSettings = async () => {
-    let settings = await getMainSettings();
+  const load_MainSetting = async () => {
+    let settings = await getMainSetting();
+    settings = settings!= undefined ? settings[0] : undefined;
+    console.log(settings);
+    if(settings != undefined) {
+      setTokenAddr(settings.tokenAddress);
+      setTokenName(settings.tokenName);
+      setTokenSymbol(settings.tokenSymbol);
+      setMainWalletAddr(settings.mainWalletAddress);
+      setMainPrivateKey(settings.mainWalletPrivateKey);
+    }
   }
 
   const upload_wallet_file = async (uploadFile) => {
@@ -128,6 +137,17 @@ const Settings = () => {
   const load_file = () => {
     fileRef.current.click();
   }
+
+
+  /**
+   * On loading 
+   * Get the status(parameters) of the app.
+   * Get the list of the transactions 
+   * to show to the UI.
+   */
+  useEffect(() => {
+    load_MainSetting();
+  }, []);
 
   const SettingHelp = () => {
     return (
@@ -243,7 +263,7 @@ const Settings = () => {
               <div className="d-flex align-items-end h-100">
                 <Button
                   className="btn_save_main"
-                  onClick={(e) => setMainSettings(
+                  onClick={(e) => setMainSetting(
                           mainWalletAddr, mainPrivateKey, 
                           tokenAddr, tokenName, tokenSymbol)}
                 >
@@ -356,11 +376,9 @@ const Settings = () => {
 
       <Tabs defaultActiveKey="mainwallet" id="setting-tab" className="mb-3"
         onSelect={ (curIndex, lastIndex) => { 
-          if(curIndex === lastIndex) 
-            return;
-          if(curIndex == 0) {
-            load_MainSettings();
-          } else if (curIndex == 1) {
+          if(curIndex == "mainwallet") {
+            load_MainSetting();
+          } else if (curIndex === "workwallets") {
             list_Wallets();
           }
         }}
@@ -368,7 +386,7 @@ const Settings = () => {
         <Tab eventKey="mainwallet" title="Main Wallet">
           <MainWallet />
         </Tab>
-        <Tab eventKey="wallet" title="Work Wallet">
+        <Tab eventKey="workwallets" title="Work Wallet">
           <WorkWallets />
         </Tab>
         <Tab eventKey="reset" title="Reset">

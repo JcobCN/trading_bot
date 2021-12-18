@@ -6,7 +6,6 @@ var env = require('dotenv').load();
 const cors = require('cors');
 const expressWs = require('express-ws');
 const http = require ('http');
-const botController = require('./controllers/botCo.js');
 var port = process.env.PORT || 8080;
 
 // models
@@ -16,8 +15,6 @@ var models = require("./models");
 var botRoute = require('./routes/bots');
 var settingRoute = require('./routes/setting');
 var transactionRoute = require('./routes/transactions');
-var tokenRoute = require('./routes/token');
-
 
 //Sync Database
 models.sequelize.sync().then(function() {
@@ -35,7 +32,7 @@ app.use(bodyParser.urlencoded({
 app.use(cors());
 
 // register routes
-app.use('/setting', settingRoute);
+app.use('/settings', settingRoute);
 app.use('/bots', botRoute);
 app.use('/transactions',transactionRoute);
 
@@ -59,6 +56,6 @@ app.ws('/connect' , function(ws, req) {
     })
 })
 
-global.frontSubscription = null;
+// global.botSubscription = null;
 
 module.exports = app;

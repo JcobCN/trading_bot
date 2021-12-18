@@ -1,4 +1,4 @@
-const { Front, FrontDetail } = require("../models");
+const { MainSetting, Wallet } = require("../models");
 const app = require("../app.js");
 
 /** @module settingController */
@@ -27,6 +27,63 @@ function sendUpdateMessage() {
   });
 }
 
+
+/**
+ * @export @function API: /setting/getMainSetting
+ * @description 
+ * <pre>
+ *  Get the main settings for the app.
+ * </pre>
+ * @return : transaction list (timestamp, token, action, price, transaction, other)
+ * @return : Error message on error.
+ */
+function getMainSetting(req, res) {
+
+  // Retrieve all of the front detail information from dataase.
+  MainSetting.findAll({
+    where: {
+      id: 1,
+    }
+  }).then(mainSetting => {
+    if (mainSetting.length == 0) {
+      let item = {
+        mainWalletAddress: "",
+        mainWalletPrivateKey: "",
+        tokenAddress: "",
+        tokenName: "",
+        tokenSymbol: "",
+        botStatus: "stop",
+      };
+
+      MainSetting.create(item).then((data) => {
+        MainSetting.findAll({
+          where: {
+            id: 1,
+          },
+        }).then((data) =>
+          res.status(201).json({
+            error: false,
+            data: data,
+            message: "Created New MainSetting in database.",
+          })
+        );
+      });
+    } else {
+      res.status(201).json({
+        error: false,
+        data: mainSetting,
+        message: "Main Setting Data retrieved",
+      });
+    }
+  }).catch((error) =>
+    res.json({
+      error: true,
+      error: error,
+    })
+  );
+}
+
+
 /**
  * @export @function API: /setting/setMainWallet
  * @description Initialize the Main Wallet Data 
@@ -34,10 +91,10 @@ function sendUpdateMessage() {
  * @return : "Front running Transaction History has been deleted" on success
  * @return : Error message on error.
  */
-function setMainSettings(req, res) {
-  
+function setMainSetting(req, res) {
+
   const {
-    mainWalletAddress, 
+    mainWalletAddress,
     mainWalletPrivateKey,
     tokenAddress,
     tokenName,
@@ -51,17 +108,17 @@ function setMainSettings(req, res) {
       tokenAddress: tokenAddress,
       tokenName: tokenName,
       tokenSymbol: tokenSymbol,
-    }, 
+    },
     {
-      where: {id:1,},
-    }  
+      where: { id: 1 },
+    }
   ).then((mainSetting) =>
-      res.status(201).json({
-        error: false,
-        data:mainSetting,
-        message: "Main Setting was saved.",
-      })
-    )
+    res.status(201).json({
+      error: false,
+      data: mainSetting,
+      message: "Main Setting was saved.",
+    })
+  )
     .catch((error) =>
       res.json({
         error: true,
@@ -106,10 +163,10 @@ function listWallets(req, res) {
  * @param {object} res 
  */
 function addWallet(req, res) {
-  const { address, key } = req.body;
-  Wallet.create({
-    address: address,
-    key: key,
+  const { walletAddress, walletPrivateKey } = req.body;
+  Wallet.upsert({
+    walletAddress: walletAddress,
+    walletPrivateKey: walletPrivateKey,
   }).then((wallet) =>
     res.status(201).json({
       error: false,
@@ -134,11 +191,11 @@ function addWallet(req, res) {
  */
 function deleteWallet(req, res) {
 
-  const { address } = req.body;
+  const { walletAddress } = req.body;
 
   Wallet.destroy({
     where: {
-      address: address,
+      walletAddress: walletAddress,
     },
   }).then((status) =>
     res.status(201).json({
@@ -208,7 +265,8 @@ function resetAll(req, res) {
 }
 
 module.exports = {
-  setMainSettings,
+  getMainSetting,
+  setMainSetting,
   addWallet,
   deleteWallet,
   addWalletFromFile,

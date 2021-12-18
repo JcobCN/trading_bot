@@ -17,7 +17,7 @@ module.exports = {
 
   /* front running ... */
 /**
- * @export @function API : /bots/startFront
+ * @export @function API : /bots/startBot
  * 
  * @description 
  * <pre>
@@ -41,7 +41,7 @@ module.exports = {
  * @return  front data (status, node, network, wallet, key, safetyWallet, token, slippage,  minbnb, maxbnb, gasSetting) 
  * @return  Error message on fail.
  */    
-  startFront(req, res) {
+  startBot(req, res) {
     const {
       node, network,
       wallet, key,
@@ -116,7 +116,7 @@ module.exports = {
 * @return  Front data (status, node, wallet, key, token, amount, slippage, gasSetting) 
  * @return  Error message on fail.
  */  
-  stopFront(req, res) {
+  stopBot(req, res) {
     // Unsubscribe from the Front subscription
     if (frontSubscription != null) {
       frontSubscription.unsubscribe(function(error, success) {
@@ -161,7 +161,7 @@ module.exports = {
  * @return  Front status (1 or 0)
  * @return  Error message on fail.
  */
-  getFrontStatus(req, res) {
+  getBotStatus(req, res) {
 
     Front.findAll({
       attribute: "status",
