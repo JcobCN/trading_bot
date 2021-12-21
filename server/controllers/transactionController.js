@@ -14,16 +14,16 @@ const app = require("../app.js");
  */
 function listTransactions(req, res) {
 
-    // Retrieve all of the front detail information from dataase.
-    Transaction.findAll({})
-        .then(transactions => res.status(201).json({
-            error: false,
-            data: transactions
-        }))
-        .catch(error => res.json({
-            error: true,
-            message: error
-        }));
+  // Retrieve all of the front detail information from dataase.
+  Transaction.findAll({})
+    .then(transactions => res.status(201).json({
+      error: false,
+      data: transactions
+    }))
+    .catch(error => res.json({
+      error: true,
+      message: error
+    }));
 }
 
 /**
@@ -36,27 +36,24 @@ function listTransactions(req, res) {
  * @param {*} res 
  */
 function clearHistory(req, res) {
-    // Remove all of the Front running Transaction History data from database.  
-    Transaction.destroy({
-        where: {},
-        truncate: true,
+  // Remove all of the Front running Transaction History data from database.  
+  Transaction.destroy({
+    where: {},
+    truncate: true,
+  }) .then((status) =>
+      res.status(201).json({
+        error: false,
+        message: "Transaction History has been deleted",
+      })
+  ) .catch((error) =>
+    res.json({
+      error: true,
+      message: error,
     })
-        .then((status) =>
-            res.status(201).json({
-                error: false,
-                message: "Transaction History has been deleted",
-            })
-        )
-        .catch((error) =>
-            res.json({
-                error: true,
-                message: error,
-            })
-        );
-    sendUpdateMessage();
+  );
 }
 
 module.exports = {
-    listTransactions,
-    clearHistory,
+  listTransactions,
+  clearHistory,
 };

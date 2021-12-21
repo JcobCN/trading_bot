@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-
 import { Button, FormControl } from "react-bootstrap";
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import { MDBDataTableV5 } from "mdbreact";
+
 import Web3 from "web3";
 import {
   getMainSetting, setMainSetting,
   addWallet, listWallets, deleteWallet, addWalletFromFile,
   detailWallet, 
-  resetAllAPI
+  resetAllAPI,
+  createNotification,
 } from "../api";
 import CONFIG from "../constant/config";
 
@@ -34,7 +35,12 @@ const Settings = () => {
   const fileRef = useRef();
 
   const resetAll = () => {
-    resetAllAPI();
+    resetAllAPI().then( (result) => {
+      if(result.error ==="false")
+        createNotification("succcess", "Successfully reseted the database.");
+      else 
+        createNotification("error", "Database reset error : " + result.message);
+    })
   };
 
   // console.log(wallets);
@@ -52,13 +58,6 @@ const Settings = () => {
 
     item.actions = (
       <div>
-        <Button
-          variant="info"
-          size="sm"
-          onClick={() => detail_Wallet(item.walletAddress)}
-        >
-          Detail
-        </Button>
         <Button
           variant="danger"
           size="sm"
@@ -78,8 +77,16 @@ const Settings = () => {
         field: "addressHash",
       },
       {
-        label: "Actions",
-        field: "actions",
+        label: "Address",
+        field: "addressHash",
+      },
+      {
+        label: "BnbAmount",
+        field: "walletBnb",
+      },
+      {
+        label: "TokenAmount",
+        field: "walletToken",
       },
     ],
     rows: rows,
@@ -107,7 +114,9 @@ const Settings = () => {
     ];
     setWallets(newWallets);
     addWallet(address, _privateKey);
-    setAddress("");  // TODO Check
+
+    // Clear the text for next input.
+    setAddress("");   
     setPrivateKey("");
   };
 
@@ -119,9 +128,9 @@ const Settings = () => {
 
   const load_MainSetting = async () => {
     let settings = await getMainSetting();
-    settings = settings!= undefined ? settings[0] : undefined;
+    settings = settings!== undefined ? settings[0] : undefined;
     console.log(settings);
-    if(settings != undefined) {
+    if(settings !== undefined) {
       setTokenAddr(settings.tokenAddress);
       setTokenName(settings.tokenName);
       setTokenSymbol(settings.tokenSymbol);
@@ -376,7 +385,7 @@ const Settings = () => {
 
       <Tabs defaultActiveKey="mainwallet" id="setting-tab" className="mb-3"
         onSelect={ (curIndex, lastIndex) => { 
-          if(curIndex == "mainwallet") {
+          if(curIndex === "mainwallet") {
             load_MainSetting();
           } else if (curIndex === "workwallets") {
             list_Wallets();

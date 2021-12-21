@@ -4,14 +4,51 @@ import { errorMessage, createNotification, client, API_URL } from "../api";
  * Start buy bot actions 
  * See backend documentation - 
  * Simple API wrapper for calling the backend API.
- * @param {botKind} Kind of the bot : Currently buy and Sell.
+ * @param {transKind} Kind of the bot : Currently buy and Sell.
  */
-export async function startBot(
-  botKind
+export async function startTradingBot(
+  transKind,
+  percentage
   ) {
   try {
-    await client.post(`${API_URL}/bot/startBot`, {
-      botKind: botKind
+    await client.post(`${API_URL}/bot/startTradingBot`, {
+      transKind: transKind,
+      percentage: percentage
+    });
+  } catch (err) {
+    createNotification("error", errorMessage(err));
+  }
+}
+
+/**
+ * Start Distribute bot actions 
+ * See backend documentation - 
+ * Simple API wrapper for calling the backend API.
+ * @param {transKind} Kind of the bot : Currently buy and Sell.
+ */
+ export async function startDistribteBot(
+  totalAmount
+  ) {
+  try {
+    await client.post(`${API_URL}/bot/startDistribteBot`, {
+      totalAmount: totalAmount
+    });
+  } catch (err) {
+    createNotification("error", errorMessage(err));
+  }
+}
+/**
+ * Start Gather bot actions 
+ * See backend documentation - 
+ * Simple API wrapper for calling the backend API.
+ * @param {transKind} Kind of the bot : Currently buy and Sell.
+ */
+ export async function startGatherBot(
+  percentage
+  ) {
+  try {
+    await client.post(`${API_URL}/bot/startGatherBot`, {
+      percentage: percentage
     });
   } catch (err) {
     createNotification("error", errorMessage(err));
@@ -48,7 +85,7 @@ export async function stopBot(
 export async function getBotStatus(
 ) {
   try {
-    let res =  await client.get('${API_URL}bots/getBotStatus');
+    let res =  await client.get(`${API_URL}bots/getBotStatus`);
     let status = res.data.data[0];
     return status;
   } catch (err) {

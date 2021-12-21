@@ -1,5 +1,5 @@
-const { MainSetting, Wallet } = require("../models");
-const app = require("../app.js");
+const { MainSetting, Wallet, Transaction } = require("../models");
+const { formidable } = require("formidable");
 
 /** @module settingController */
 
@@ -26,7 +26,6 @@ function sendUpdateMessage() {
     client.send("setting Updated");
   });
 }
-
 
 /**
  * @export @function API: /setting/getMainSetting
@@ -225,8 +224,33 @@ function deleteWallet(req, res) {
  */
 // TODO : implement later
 function addWalletFromFile(req, res) {
+  var fs = require('fs');
 
+  let form = new formidable.IncomingForm();
+
+  form.parse(req, (err, fields, file) => {
+
+    console.log(JSON.stringify(file));
+    var oldpath = file.filetoupload.filepath;
+
+    var fs = require('fs'),
+      readline = require('readline');
+
+    var rd = readline.createInterface({
+      input: fs.createReadStream(oldpath),
+      output: process.stdout,
+      console: false
+    });
+
+    var lineNum = 0;
+    rd.on('line', (line) => {
+      lineNum ++;
+      console.log("line : " + lineNum + " %%% " + line);
+
+    });
+  });
 }
+
 /**
  * 
  * @export @function API: /setting/resetAll
@@ -239,17 +263,21 @@ function addWalletFromFile(req, res) {
 function resetAll(req, res) {
   // We should handle the result if success or fail for each destroy option.
   promise1 = MainSetting.destroy({
-    where: {
-      id: 1,
-    },
+    where: { id: 1, },
+    truncate: true,
   });
 
-  promise2 = Transaction.destroy({
+  promise2 = Wallet.destroy({
+    where: {},
+    truncate: true,
+  });
+
+  promise3 = Transaction.destroy({
     where: {},
     truncate: true,
   })
 
-  Promise.all([promise1, promise2]).then((status_list) =>
+  Promise.all([promise1, promise2, promise3]).then((status_list) =>
     res.status(201).json({
       error: false,
       message: "All Information has been deleted",

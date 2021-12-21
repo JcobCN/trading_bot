@@ -15,7 +15,7 @@ export async function listWallets() {
   }
 }
 
-export async function detailWallet(address) {
+export async function detailWallet(walletAddress) {
   try {
     await client.post(`${API_URL}/settings/detailWallet`, {
       walletAddress: walletAddress
@@ -36,7 +36,7 @@ export async function addWallet(walletAddress, walletPrivateKey) {
   }
 }
 
-export async function deleteWallet(address) {
+export async function deleteWallet(walletAddress) {
   try {
     await client.post(`${API_URL}/settings/deleteWallet`, {
       walletAddress: walletAddress
@@ -52,7 +52,8 @@ export async function deleteWallet(address) {
  */
  export async function addWalletFromFile(file) {
   try {
-    await client.post(`${API_URL}/wallets/addWalletFromFile`, {
+    console.log(file);
+    await client.post(`${API_URL}/settings/addWalletFromFile`, {
       file: file,
     });
   } catch (err) {
@@ -109,7 +110,7 @@ export async function setMainSetting(
  */
 export async function resetAllAPI() {
   try {
-    await client.post(`${API_URL}/settings/resetAll`);;
+    await client.get(`${API_URL}/settings/resetAll`);;
   } catch (err) {
     console.log(err);
   }

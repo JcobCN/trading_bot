@@ -17,6 +17,7 @@ const Transactions = () => {
 
   const list_transactions = async () => {
     items = await listTransactions(transKind,  searchDate);
+    console.log("Transactions = " + items);
     setTransactions(items);
   };
 
@@ -24,9 +25,9 @@ const Transactions = () => {
     clearHistory(); 
   };
 
+  console.log(transactions);
   // Each row of the transaction.
   var rows = transactions.map((item) => {
-
     item.transactionHash = (
       <a 
         href={CONFIG.EXPLORER + item.transaction} 
@@ -51,26 +52,26 @@ const Transactions = () => {
   });
 
   useEffect(() => {
-    // TODO UI TEST CODE
-    let items = [
-      { 
-        timestamp : "2021.12.16 18:00:00",         
-        address : "0x4DD589F02844FB048715F7145a8FF70d8506F19e", 
-        transaction : "0x4DD589F02844FB048715F7145a8FF70d8506F19e", 
-        amount : 0.120,
-        action : "Buy"
-      },
-      { 
-        timestamp : "2021.12.17 20:00:00", 
-        address: "0x5Ba73512651aBCD37ae219A23c33d39A43a291dF", 
-        transaction : "0x4DD589F02844FB048715F7145a8FF70d8506F19e", 
-        amount : 0.3570,
-        action : "Sell"
-      },
-    ];
-    setTransactions (items);
-    return;
-    
+    // TEST UI TEST CODE
+    // let items = [
+    //   { 
+    //     timestamp : "2021.12.16 18:00:00",         
+    //     address : "0x4DD589F02844FB048715F7145a8FF70d8506F19e", 
+    //     transaction : "0x4DD589F02844FB048715F7145a8FF70d8506F19e", 
+    //     amount : 0.120,
+    //     action : "Buy"
+    //   },
+    //   { 
+    //     timestamp : "2021.12.17 20:00:00", 
+    //     address: "0x5Ba73512651aBCD37ae219A23c33d39A43a291dF", 
+    //     transaction : "0x4DD589F02844FB048715F7145a8FF70d8506F19e", 
+    //     amount : 0.3570,
+    //     action : "Sell"
+    //   },
+    // ];
+    // setTransactions (items);
+    // return;
+        
     list_transactions();    
   }, []);
 
@@ -134,13 +135,13 @@ const Transactions = () => {
           />
         </div>
         <div className="col-sm-12 col-md-6" id="buy_sell">
-          <label htmlFor="transkind">Transaction Kind:</label>
-          <span className="section_radio" id="transkind">
+          <label htmlFor="transKind">Transaction Kind:</label>
+          <span className="section_radio" id="transKind">
             <label className="px-2">
               <input
                 type="radio"
                 value="buy"
-                checked={transKind === "buy"}
+                checked={(transKind === "buy")}
                 onChange={(e) => {
                   setTransKind("buy");
                 }}
@@ -161,10 +162,32 @@ const Transactions = () => {
             <label className="px-2">
               <input
                 type="radio"
-                value="all"
-                checked={transKind === ""}
+                value="distribute"
+                checked={transKind === "distribute"}
                 onChange={(e) => {
-                  setTransKind("");
+                  setTransKind("distribute");
+                }}
+              />
+              &nbsp;Distribute
+            </label>
+            <label className="px-2">
+              <input
+                type="radio"
+                value="gather"
+                checked={transKind === "gather"}
+                onChange={(e) => {
+                  setTransKind("gather");
+                }}
+              />
+              &nbsp;Gather
+            </label>
+            <label className="px-2">
+              <input
+                type="radio"
+                value="all"
+                checked={transKind === "All"}
+                onChange={(e) => {
+                  setTransKind("All");
                 }}
               />
               &nbsp;All

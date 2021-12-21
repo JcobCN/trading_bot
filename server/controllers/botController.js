@@ -28,16 +28,6 @@ module.exports = {
  *         save to Front Database for given information.
  * </pre>
  * 
- * @param {string} node - Quick Node WSS URL
- * @param {string} network - Ethereum or Binance
- * @param {string} wallet - Wallet address (Public key)
- * @param {string} key - Wallet private KEY(Should be paid attention.) 
- * @param {string} safetyWallet - SafetyWallete to store bought tokens.
- * @param {number} slippage - Slippage(%):
- * @param {number} minbnb - Min ETH to follow
- * @param {number} maxbnb - Max ETH to follow
- * @param {String} gasSetting - Gas Setting - Block Native or MM Recommended Gas (Default : Native) mm/native
- * 
  * @return  front data (status, node, network, wallet, key, safetyWallet, token, slippage,  minbnb, maxbnb, gasSetting) 
  * @return  Error message on fail.
  */    
@@ -103,7 +93,7 @@ module.exports = {
   },
 
 /**
- * @export @function API : /bots/stopFront
+ * @export @function API : /bots/stopBot
  * 
  * @description 
  * <pre>
@@ -115,7 +105,7 @@ module.exports = {
  * 
 * @return  Front data (status, node, wallet, key, token, amount, slippage, gasSetting) 
  * @return  Error message on fail.
- */  
+ */
   stopBot(req, res) {
     // Unsubscribe from the Front subscription
     if (frontSubscription != null) {
@@ -151,7 +141,7 @@ module.exports = {
   },
 
   /**
- * @export @function API : /bots/getFrontStatus
+ * @export @function API : /bots/getBotStatus
  * 
  * @description 
  * <pre>
