@@ -1,10 +1,21 @@
-const { Transaction } = require("../models");
-const app = require("../app.js");
-
-
+const app = require ("../app.js");
+const { Transaction } = require ("../models");
+const { apiSuccess, apiError}  = require ("./engine");
 
 /**
- * @export @function API: /transactions/front
+ * @module transactionController
+ *  * <pre>
+ * APIs for handling Transactons 
+ * API prefix : /transactions/
+ * Provided APIs : 
+ *    listTransactions,
+ *    clearHistory,
+ * 
+ * </pre>
+ */
+
+/**
+ * @export @function API: listTransactions
  * @description 
  * <pre>
  *  List all of the front detail information.  
@@ -13,17 +24,27 @@ const app = require("../app.js");
  * @return : Error message on error.
  */
 function listTransactions(req, res) {
+  const {
+    date, 
+  } = req.body;
 
+  let whereCondition = {};
+  if( date != null ) {
+    const startDate = Date.parse(date);
+    const endDate = Date.parse(date);
+    whereCondition = {
+      timestamp : {
+        $between: [startDate, endDate]
+      }
+    };
+  }
+  
   // Retrieve all of the front detail information from dataase.
-  Transaction.findAll({})
-    .then(transactions => res.status(201).json({
-      error: false,
-      data: transactions
-    }))
-    .catch(error => res.json({
-      error: true,
-      message: error
-    }));
+  Transaction.findAll(
+    { where : whereCondition }
+  ) .then(transactions => apiSuccess(res, transactions, "Got the transactions")
+  ) .catch(error => apiError(res, error, "Can't get the transaction list")
+  );
 }
 
 /**
@@ -40,16 +61,8 @@ function clearHistory(req, res) {
   Transaction.destroy({
     where: {},
     truncate: true,
-  }) .then((status) =>
-      res.status(201).json({
-        error: false,
-        message: "Transaction History has been deleted",
-      })
-  ) .catch((error) =>
-    res.json({
-      error: true,
-      message: error,
-    })
+  }) .then((status) => apiSuccess(res, {}, "Transaction History has been deleted")
+  ) .catch((error) => apiError (res, error, "Failed in deleting Transaction History")
   );
 }
 

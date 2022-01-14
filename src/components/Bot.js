@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useEffect, useState } from "react";
 import ProgressBar from 'react-bootstrap/ProgressBar'
+import { w3cwebsocket } from "websocket";
 
 import { confirmAlert } from "react-confirm-alert";
 import { Button } from "react-bootstrap";
-import { w3cwebsocket as W3CWebSocket } from "websocket";
-import { stopBot, getBotStatus } from "../api";
+// import io from "socket.io-client";
+import { stopBot } from "../api";
 
 import 'react-confirm-alert/src/react-confirm-alert.css';
+
+const thisSessionId = Math.random().toString(36).substr(2, 9);
 
 /**
  * Basic UI module for handling Sell / Buy Bot Operation.
@@ -15,15 +17,16 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 */
 const Bot = (props) => {
 
+  const client = new w3cwebsocket("ws://localhost:9080/connect");
+
   const transKind = props.transKind;
   const startBot = props.callBot;
 
-  // Socket to check progress of the Bot.
-  // const client = new W3CWebSocket("ws://localhost:8080/connect");
-
-  const [totalWalletCount, setTotalWalletCount] = useState(0);
-  const [processedWalletCount, setProcessedWalletCount] = useState(0);
+  const [totalWorkWalletCount, setTotalWorkWalletCount] = useState(0);
+  const [processedWorkWalletCount, setProcessedWorkWalletCount] = useState(0);
   const [runningStatus, setRunningStatus] = useState("stop");
+
+  // Socket to check progress of the Bot.
 
   const confirmStopBot = (message) => {
     var selected = false;
@@ -51,26 +54,54 @@ const Bot = (props) => {
    *     Viewing the list of the transactions. 
    */
 
-  const progress = totalWalletCount === 0 ? 0 :  Math.round(processedWalletCount / totalWalletCount * 100);
+  const progress = totalWorkWalletCount === 0 
+            ? 0 :  Math.round(processedWorkWalletCount / totalWorkWalletCount * 100);
 
   // Run the backend bot by pressing "Start Bot" toggle button.
   const start = () => {
     if (runningStatus !== "stop") {
       if (confirmStopBot(runningStatus
         + " Bot is running. \n Will you stop it and start "
-        + transKind + "Bot?"))
+        + transKind + "Bot?")) {
         stopBot();
-      else {
+        } else {
         // TODO Should move page for current Bot Activity
         return;
       }
     }
-    startBot();
-  };
+    setRunningStatus(props.transKind);
 
+    const rtVal = startBot();
+    if(rtVal == false)
+      setRunningStatus("stop");    
+  };
+  
   // Stop the Bot as pressing "Stop Bot" toggle button  
   const stop = () => {
     stopBot();
+  };
+
+  useEffect(() => {
+    client.onopen = () => {
+      console.log("WebSocket Client Connected");
+    };
+    client.onmessage = (message) => {
+      var msg = JSON.parse(message.data);
+      if(msg.message === "progress") {
+        setTotalWorkWalletCount( msg.data.totalWorkWalletCount );
+        setProcessedWorkWalletCount ( msg.data.processedWorkWalletCount );
+      }
+      if(totalWorkWalletCount == processedWorkWalletCount ) 
+        setRunningStatus("stop");
+    };    
+  }, []);
+
+  const buttonCaption = () => {
+    switch (runningStatus) {
+      case "pause": return ("Resume " + transKind);
+      case "stop": return ("Start " + transKind);
+      default : return ("Stop");
+    }
   };
 
   return (
@@ -86,7 +117,7 @@ const Bot = (props) => {
             className="btn_start"
             onClick={runningStatus !== "stop" ? () => stop() : () => start()}
           >
-            {runningStatus !== "stop" ? "Stop Bot" : "Start " + transKind}
+            { buttonCaption (runningStatus) }
           </Button>
         </div>
       </div>
@@ -94,7 +125,7 @@ const Bot = (props) => {
         <div className="form-group col-sm-12 col-md-12">
           <ProgressBar animated now={progress} label={`${progress}%`} />
           <div className="float-right">
-            {processedWalletCount} / {totalWalletCount} wallets processed
+            {processedWorkWalletCount} / {totalWorkWalletCount} wallets processed
           </div>
         </div>
       </div>

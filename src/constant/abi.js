@@ -1,4 +1,5 @@
-export const abi = [
+module.exports = {  
+  abi:[  
   {
     constant: true,
     inputs: [],
@@ -150,4 +151,5 @@ export const abi = [
     name: "Withdrawal",
     type: "event",
   },
-];
+  ],
+}

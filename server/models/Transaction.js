@@ -1,10 +1,10 @@
-module.exports = function(sequelize, Sequalize) {
+module.exports = function(sequelize, Sequelize) {
     var Transaction = sequelize.define("Transaction", {
-        timestamp: Sequalize.TIME,          // The timestamp that the transaction occured.
-        action: Sequalize.STRING,           // buy / sell / gather / distribute
-        amount: Sequalize.FLOAT,            // Bought / Sold / Transafered amount.
-        address: Sequalize.STRING,          // Working Wallet Address
-        transaction: Sequalize.STRING       // Transactin Hash value.
+        timestamp: Sequelize.TIME,          // The timestamp that the transaction occured.
+        amount: Sequelize.STRING,            // Bought / Sold / Transafered amount.
+        from: Sequelize.STRING,             // From  Wallet Address
+        to: Sequelize.STRING,               // To Wallet Address
+        transaction: Sequelize.STRING       // Transactin Hash value.
     },{
         timestamps: false
     });

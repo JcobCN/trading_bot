@@ -1,5 +1,9 @@
-const { MainSetting, Wallet, Transaction } = require("../models");
+const { MainSetting, WorkWallet, BotStatus, Transaction } = require("../models");
+const { apiSuccess, apiError, getWalletBalance, getWalletAddress } = require("./engine");
 const { formidable } = require("formidable");
+const fs = require("fs");
+const readline = require('readline');
+const app = require("../app");
 
 /** @module settingController */
 
@@ -9,10 +13,10 @@ const { formidable } = require("formidable");
  * API prefix : /setting/
  * Provided APIs :   
  *               setMainWallet,
- *               addWallet,
- *               deleteWallet,
- *               addWalletFromFile,
- *               listWallets,
+ *               addWorkWallet,
+ *               deleteWorkWallet,
+ *               addWorkWalletFromFile,
+ *               listWorkWallets,
  *               resetAll
  * </pre>
  */
@@ -23,7 +27,11 @@ const { formidable } = require("formidable");
 function sendUpdateMessage() {
   var aWss = app.wss.getWss("/");
   aWss.clients.forEach(function (client) {
-    client.send("setting Updated");
+    client.send(
+      JSON.stringify({
+        message:"Setting Updated"
+      })
+    );
   });
 }
 
@@ -40,12 +48,11 @@ function getMainSetting(req, res) {
 
   // Retrieve all of the front detail information from dataase.
   MainSetting.findAll({
-    where: {
-      id: 1,
-    }
+    where: { id: 1, }
   }).then(mainSetting => {
     if (mainSetting.length == 0) {
       let item = {
+        id: 1,
         mainWalletAddress: "",
         mainWalletPrivateKey: "",
         tokenAddress: "",
@@ -59,26 +66,14 @@ function getMainSetting(req, res) {
           where: {
             id: 1,
           },
-        }).then((data) =>
-          res.status(201).json({
-            error: false,
-            data: data,
-            message: "Created New MainSetting in database.",
-          })
+        }).then((data) => apiSuccess(res, data, "Created New MainSetting in database.")
+        ).catch((error) => apiError(res, error, "Can't create MainSetting")
         );
       });
     } else {
-      res.status(201).json({
-        error: false,
-        data: mainSetting,
-        message: "Main Setting Data retrieved",
-      });
+      apiSuccess(res, mainSetting, "Main Setting Data retrieved");
     }
-  }).catch((error) =>
-    res.json({
-      error: true,
-      error: error,
-    })
+  }).catch((error) => apiError(res, error, "Can't retrieve MainSetting")
   );
 }
 
@@ -111,19 +106,9 @@ function setMainSetting(req, res) {
     {
       where: { id: 1 },
     }
-  ).then((mainSetting) =>
-    res.status(201).json({
-      error: false,
-      data: mainSetting,
-      message: "Main Setting was saved.",
-    })
-  )
-    .catch((error) =>
-      res.json({
-        error: true,
-        message: error,
-      })
-    );
+  ).then((mainSetting) => apiSuccess(res, mainSetting, "Main Setting was saved.")
+  ).catch((error) => apiError(res, error, "Can't save Main Setting")
+  );
   sendUpdateMessage();
 }
 
@@ -136,24 +121,16 @@ function setMainSetting(req, res) {
  * @param {object} req 
  * @param {object} res 
  */
-function listWallets(req, res) {
-  Wallet.findAll({})
-    .then((wallets) =>
-      res.status(201).json({
-        error: false,
-        data: wallets,
-      })
-    )
-    .catch((error) =>
-      res.json({
-        error: true,
-        message: error,
-      })
-    );
+function listWorkWallets(req, res) {
+  WorkWallet.findAll(
+    {}
+  ).then((wallets) => apiSuccess(res, wallets, "Got work Wallets")
+  ).catch((error) => apiError(res, error, "Can't get work wallets.")
+  );
 }
 
 /**
- * @export @function addWallet
+ * @export @function addWorkWallet
  * @description 
  * <pre>
  *    Add the given wallet information into database.
@@ -161,26 +138,65 @@ function listWallets(req, res) {
  * @param {object} req 
  * @param {object} res 
  */
-function addWallet(req, res) {
-  const { walletAddress, walletPrivateKey } = req.body;
-  Wallet.upsert({
-    walletAddress: walletAddress,
-    walletPrivateKey: walletPrivateKey,
-  }).then((wallet) =>
-    res.status(201).json({
-      error: false,
-      data: wallet,
-    })
-  ).catch((error) =>
-    res.json({
-      error: true,
-      message: error,
-    })
+async function addWorkWallet(req, res) {
+  const {
+    walletAddress, walletPrivateKey
+  } = req.body;
+
+  addOneWorkWallet(
+    walletPrivateKey
+  ).then(wallet => apiSuccess(res, wallet, "Added work wallet")
+  ).catch(error => apiError(res, error, "Adding work wallet failed : " + walletAddress)
   );
 }
 
+async function addOneWorkWallet(privateKey) {
+
+  // 1. Get Wallet Address from the private Key
+  let walletAddress = getWalletAddress(privateKey);
+
+  // 2. Retrieve the bnb and token amount in the wallet.
+  // we disable this function, because it is time consuming operation for bot.
+  // const walletBalence = await getWalletBalance(walletAddress);
+
+  // Update the BotStatus for totalWalletCount increased
+  BotStatus.increment(
+    'totalWorkWalletCount',
+    { where: { id: 1 } },
+  );
+
+  // 3. Create a wallet item in the database
+  return WorkWallet.upsert(
+    {
+      timestamp: Date.now(),
+      walletAddress: walletAddress,
+      walletPrivateKey: privateKey,
+    }
+  );
+}
+
+
 /**
- * @export @function deleteWallet
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
+ async function getWorkWalletBalance(req, res) {
+  // First of all, we should get the amount in the main Wallet. 
+  const { walletAddress } = req.body;
+
+  if(walletAddress === "" || walletAddress === undefined ) {
+    apiError(res, "Empty Wallet address", "getWalletBalance");
+    return;
+  }
+
+  const walletBalence = await getWalletBalance(walletAddress);
+  apiSuccess (res, walletBalence, "wallet balance retrieved");
+}
+
+/**
+ * @export @function deleteWorkWallet
  * @description 
  * <pre>
  *    Delete the given wallet information from database.
@@ -188,29 +204,27 @@ function addWallet(req, res) {
  * @param {object} req 
  * @param {object} res 
  */
-function deleteWallet(req, res) {
+function deleteWorkWallet(req, res) {
 
   const { walletAddress } = req.body;
 
-  Wallet.destroy({
+  // Update the BotStatus for totalWalletCount increased
+  BotStatus.decrement(
+    'totalWorkWalletCount',
+    { where: { id: 1 } },
+  );
+
+  WorkWallet.destroy({
     where: {
       walletAddress: walletAddress,
     },
-  }).then((status) =>
-    res.status(201).json({
-      error: false,
-      message: "Wallet has been deleted",
-    })
-  ).catch((error) =>
-    res.json({
-      error: true,
-      error: error,
-    })
+  }).then((status) => apiSuccess(res, { walletAddress: walletAddress }, "Deleting WorkWallet.")
+  ).catch((error) => apiError(res, error, "Can't delete wallet")
   );
 }
 
 /**
- * @export @function addWalletFromFile
+ * @export @function addWorkWalletFromFile
  * @description 
  * <pre>
  *    Add all of the wallet lists from given file.
@@ -223,18 +237,13 @@ function deleteWallet(req, res) {
  * @param {object} res 
  */
 // TODO : implement later
-function addWalletFromFile(req, res) {
-  var fs = require('fs');
+function addWorkWalletFromFile(req, res) {
 
   let form = new formidable.IncomingForm();
 
   form.parse(req, (err, fields, file) => {
 
-    console.log(JSON.stringify(file));
-    var oldpath = file.filetoupload.filepath;
-
-    var fs = require('fs'),
-      readline = require('readline');
+    var oldpath = file.uploadFile.filepath;
 
     var rd = readline.createInterface({
       input: fs.createReadStream(oldpath),
@@ -243,12 +252,19 @@ function addWalletFromFile(req, res) {
     });
 
     var lineNum = 0;
+    // Sample : PrivateKey: 0xf34c419b610772006063f765933cfd261ddb210b149806976ef51d
     rd.on('line', (line) => {
-      lineNum ++;
-      console.log("line : " + lineNum + " %%% " + line);
-
+      lineNum++;
+      matches = line.match(/[pP]rivate[kK]ey:\s*0x([a-fA-F0-9]*)\s*/);
+      if (matches?.length) {
+        privateKey = matches[1];
+        console.log("line : " + lineNum + " === " + privateKey);
+        addOneWorkWallet(privateKey);
+      }
     });
   });
+
+  apiSuccess(res, "success", "Successfully imported wallet File")
 }
 
 /**
@@ -262,42 +278,34 @@ function addWalletFromFile(req, res) {
  */
 function resetAll(req, res) {
   // We should handle the result if success or fail for each destroy option.
-  promise1 = MainSetting.destroy({
-    where: { id: 1, },
-    truncate: true,
-  });
-
-  promise2 = Wallet.destroy({
+  const truncateOption = {
     where: {},
     truncate: true,
-  });
+  }
 
-  promise3 = Transaction.destroy({
-    where: {},
-    truncate: true,
-  })
+  promise1 = MainSetting.destroy(truncateOption);
+  promise2 = BotStatus.destroy(truncateOption);
+  promise3 = WorkWallet.destroy(truncateOption);
+  promise4 = Transaction.destroy(truncateOption);
 
-  Promise.all([promise1, promise2, promise3]).then((status_list) =>
-    res.status(201).json({
-      error: false,
-      message: "All Information has been deleted",
-    })
-  )
-    .catch((error) =>
-      res.json({
-        error: true,
-        message: error,
-      })
-    );
+  Promise.all(
+    [promise1, promise2, promise3, promise4]
+  ).then((status_list) => apiSuccess(res, {}, "All Information has been deleted")
+  ).catch((error) => apiError(res, error, "Can't delete all information")
+  );
   sendUpdateMessage();
 }
 
 module.exports = {
   getMainSetting,
   setMainSetting,
-  addWallet,
-  deleteWallet,
-  addWalletFromFile,
-  listWallets,
+
+  getWorkWalletBalance,
+
+  addWorkWallet,
+  deleteWorkWallet,
+  addWorkWalletFromFile,
+  listWorkWallets,
+
   resetAll,
 };

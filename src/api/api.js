@@ -1,12 +1,13 @@
-import { toast } from "react-toastify";
-import axios from "axios";
+import 'react-toastify/dist/ReactToastify.css';
 
+import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
 
 /**
  * UI module for calling backend APIs.
  * call backend websocket APIs. 
  */
-export const API_URL = "http://localhost:8080";
+export const API_URL = "http://localhost:9080";
 export const client = axios.create({
   baseURL: API_URL,
   headers: { 

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "react-bootstrap";
 import DatePicker from 'react-date-picker';
 import { MDBDataTable } from "mdbreact";
-import { w3cwebsocket as W3CWebSocket } from "websocket";
 import CONFIG from "../constant/config";
 import { listTransactions, clearHistory } from "../api/transaction";
 
@@ -11,67 +10,65 @@ const Transactions = () => {
 
   const [transactions, setTransactions] = useState([]);
   const [searchDate, setSearchDate] = useState(null);
-  const [transKind, setTransKind] = useState("");
 
   var items = [];
 
   const list_transactions = async () => {
-    items = await listTransactions(transKind,  searchDate);
+    items = await listTransactions(searchDate);
     console.log("Transactions = " + items);
-    setTransactions(items);
+
+    if(items !== undefined )
+      setTransactions(items);
   };
 
   const clear_history = async () => {
     clearHistory(); 
   };
 
-  console.log(transactions);
   // Each row of the transaction.
-  var rows = transactions.map((item) => {
-    item.transactionHash = (
-      <a 
-        href={CONFIG.EXPLORER + item.transaction} 
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {item.transaction}
-      </a>
-    );
+  const rows = useMemo(() => {
+    return transactions.map((item) => {
+      const newItem = { ...item };
+      
+      newItem.timestamp = (  
+        new Date(item.timestamp).toUTCString()
+      );
 
-    item.addressHash = (
-      <a 
-        href={CONFIG.EXPLORER_ADDR + item.transaction} 
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {item.address}
-      </a>
-    );
+      newItem.transactionHash = (  
+        <a 
+          href={CONFIG.EXPLORER + item.transaction} 
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {item.transaction}
+        </a>
+      );
 
-    return item;
-  });
+      newItem.fromHash = (
+        <a 
+          href={CONFIG.EXPLORER_ADDR + item.from} 
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {item.from}
+        </a>
+      );
+
+      newItem.toHash = (
+        <a 
+          href={CONFIG.EXPLORER_ADDR + item.to} 
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {item.to}
+        </a>
+      );
+
+      return newItem;
+    });
+  }, [transactions]);
 
   useEffect(() => {
-    // TEST UI TEST CODE
-    // let items = [
-    //   { 
-    //     timestamp : "2021.12.16 18:00:00",         
-    //     address : "0x4DD589F02844FB048715F7145a8FF70d8506F19e", 
-    //     transaction : "0x4DD589F02844FB048715F7145a8FF70d8506F19e", 
-    //     amount : 0.120,
-    //     action : "Buy"
-    //   },
-    //   { 
-    //     timestamp : "2021.12.17 20:00:00", 
-    //     address: "0x5Ba73512651aBCD37ae219A23c33d39A43a291dF", 
-    //     transaction : "0x4DD589F02844FB048715F7145a8FF70d8506F19e", 
-    //     amount : 0.3570,
-    //     action : "Sell"
-    //   },
-    // ];
-    // setTransactions (items);
-    // return;
-        
     list_transactions();    
   }, []);
 
@@ -82,20 +79,20 @@ const Transactions = () => {
         field: "timestamp",
       },
       {
-        label: "Wallet",
-        field: "addressHash",
-      },
-      {
-        label: "Transaction",
-        field: "transactionHash",
-      },
-      {
         label: "Amount",
         field: "amount",
       },
       {
-        label: "Buy/Sell",
-        field: "action",
+        label: "From",
+        field: "fromHash",
+      },
+      {
+        label: "To",
+        field: "toHash",
+      },
+      {
+        label: "Transaction",
+        field: "transactionHash",
       },
     ],
     rows: rows,
@@ -133,66 +130,6 @@ const Transactions = () => {
             value={searchDate}
             id="searchdate"
           />
-        </div>
-        <div className="col-sm-12 col-md-6" id="buy_sell">
-          <label htmlFor="transKind">Transaction Kind:</label>
-          <span className="section_radio" id="transKind">
-            <label className="px-2">
-              <input
-                type="radio"
-                value="buy"
-                checked={(transKind === "buy")}
-                onChange={(e) => {
-                  setTransKind("buy");
-                }}
-              />
-              &nbsp;Buy
-            </label>
-            <label className="px-2">
-              <input
-                type="radio"
-                value="sell"
-                checked={transKind === "sell"}
-                onChange={(e) => {
-                  setTransKind("sell");
-                }}
-              />
-              &nbsp;Sell
-            </label>
-            <label className="px-2">
-              <input
-                type="radio"
-                value="distribute"
-                checked={transKind === "distribute"}
-                onChange={(e) => {
-                  setTransKind("distribute");
-                }}
-              />
-              &nbsp;Distribute
-            </label>
-            <label className="px-2">
-              <input
-                type="radio"
-                value="gather"
-                checked={transKind === "gather"}
-                onChange={(e) => {
-                  setTransKind("gather");
-                }}
-              />
-              &nbsp;Gather
-            </label>
-            <label className="px-2">
-              <input
-                type="radio"
-                value="all"
-                checked={transKind === "All"}
-                onChange={(e) => {
-                  setTransKind("All");
-                }}
-              />
-              &nbsp;All
-            </label>
-          </span>
         </div>
       </div>
 

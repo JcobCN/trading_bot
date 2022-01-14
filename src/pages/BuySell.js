@@ -5,8 +5,6 @@ import NumericInput from "react-numeric-input";
 
 import Bot from '../components/Bot'
 
-import 'react-confirm-alert/src/react-confirm-alert.css';
-
 import { startTradingBot } from "../api";
 
 /**
@@ -14,24 +12,23 @@ import { startTradingBot } from "../api";
  * Detailed comments are seen below.
 */
 const BuySell = () => {
-  // Socket to check progress of the Bot.
-  // const client = new W3CWebSocket("ws://localhost:8080/connect");
-
-  var transactionItems = [];
-
-  const PercentageContext = React.createContext(50);
-
+  
   const [percentage, setPercentage] = useState(50);
 
   const percentageRef = useRef();
 
   // Parameter : percentage for buy or sell
-  function callSellBot () {    
-    startTradingBot("sell", percentageRef.value);
+  
+  function callSellBot () {
+    if(percentageRef.current.state.value === 0)
+      return false;
+    startTradingBot("sell", percentageRef.current.state.value);
   }
 
-  function callBuyBot (){    
-    startTradingBot("buy", percentageRef.value);
+  function callBuyBot (){
+    if(percentageRef.current.state.value === 0)
+      return false;    
+    startTradingBot("buy", percentageRef.current.state.value);
   }
 
   const TradeParam = (props) => {
@@ -50,7 +47,7 @@ const BuySell = () => {
           */}
           {transKind === "sell" ? "Sell" : "Buy"} &nbsp;
           {transKind === "sell" ? "BNB" : "Token"} 
-          &nbsp;for &nbsp;
+          &nbsp; with &nbsp;
           {transKind === "sell" ? "Token" : "BNB"}
         </h3>
         <div>
@@ -66,17 +63,17 @@ const BuySell = () => {
         </div>
         <div className="row">
           <label htmlFor="amount" className="form-group col-sm-12 col-md-4"> 
-            Trading for each Wallet
+            Trading for each Work Wallet
           </label>
           <div className="form-group col-sm-12 col-md-4">
             <NumericInput className="form-control"
               min={0} 
               max={80}
-              id="percentage"
+              id={"percentage"+ transKind}
               value={percentage}
               format={percentageFormat}
               ref={percentageRef}
-              // onChange={ (value) => setPercentage(value) }
+              onChange={ (value) => setPercentage(value) }
             />
           </div>
 

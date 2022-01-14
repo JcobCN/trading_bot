@@ -5,9 +5,9 @@ import { API_URL, client } from "./api";
 * See backend documentation - 
 * Simple API wrapper for calling the backend API.
 */
-export async function listWallets() {
+export async function listWorkWallets() {
   try {
-    let res = await client.get(`${API_URL}/settings/listWallets`);
+    let res = await client.get(`${API_URL}/settings/listWorkWallets`);
     let data = res.data.data;
     return data;
   } catch (err) {
@@ -15,47 +15,55 @@ export async function listWallets() {
   }
 }
 
-export async function detailWallet(walletAddress) {
+export async function addWorkWallet(walletAddress, walletPrivateKey) {
   try {
-    await client.post(`${API_URL}/settings/detailWallet`, {
-      walletAddress: walletAddress
+    await client.post(`${API_URL}/settings/addWorkWallet`, {
+      walletAddress: walletAddress.trim(),
+      walletPrivateKey: walletPrivateKey.trim()
     });
   } catch (err) {
     console.log(err);
   }
 }
 
-export async function addWallet(walletAddress, walletPrivateKey) {
+export async function deleteWorkWallet(walletAddress) {
   try {
-    await client.post(`${API_URL}/settings/addWallet`, {
-      walletAddress: walletAddress,
-      walletPrivateKey: walletPrivateKey
+    await client.post(`${API_URL}/settings/deleteWorkWallet`, {
+      walletAddress: walletAddress.trim()
     });
   } catch (err) {
     console.log(err);
   }
 }
 
-export async function deleteWallet(walletAddress) {
+export async function getWorkWalletBalance(walletAddress) {
   try {
-    await client.post(`${API_URL}/settings/deleteWallet`, {
-      walletAddress: walletAddress
+    let res = await client.post(`${API_URL}/settings/getWorkWalletBalance`, {
+      walletAddress: walletAddress.trim()
     });
+    let data = res.data.data;
+    return data;
   } catch (err) {
     console.log(err);
   }
 }
+
 
 /**
  * 
  * @param {object} file : File information to load 
  */
- export async function addWalletFromFile(file) {
+ export async function addWorkWalletFromFile(files) {
   try {
-    console.log(file);
-    await client.post(`${API_URL}/settings/addWalletFromFile`, {
-      file: file,
-    });
+    console.log(files);
+    let formData = new FormData();
+    formData.append("uploadFile", files[0]);
+    console.log("Prev POST");
+
+    // TODO Add progress bar or loading icon, here.
+
+    await client.post(`${API_URL}/settings/addWorkWalletFromFile`, formData);
+    console.log("NEXT POST");
   } catch (err) {
     console.log(err);
   }
@@ -68,7 +76,7 @@ export async function deleteWallet(walletAddress) {
 export async function getMainSetting () {
   try {
     let res = await client.get(`${API_URL}/settings/getMainSetting`);
-    console.log(res)
+
     let data = res.data.data;
     return data;
   } catch (err) {
@@ -91,11 +99,11 @@ export async function setMainSetting(
 ) {
   try {
     await client.post(`${API_URL}/settings/setMainSetting`, {
-      mainWalletAddress: mainWalletAddress,
-      mainWalletPrivateKey : mainWalletPrivateKey,
-      tokenAddress : tokenAddress,
-      tokenName: tokenName,
-      tokenSymbol:tokenSymbol
+      mainWalletAddress: mainWalletAddress.trim(),
+      mainWalletPrivateKey : mainWalletPrivateKey.trim(),
+      tokenAddress : tokenAddress.trim(),
+      tokenName: tokenName.trim(),
+      tokenSymbol:tokenSymbol.trim()
     }); 
   } catch (err) {
     console.log(err);

@@ -5,11 +5,13 @@ const router = new express.Router();
 
 router.get('/getMainSetting', settingController.getMainSetting);
 router.post('/setMainSetting', settingController.setMainSetting);
-router.post('/addWallet', settingController.addWallet);
-router.post('/deleteWallet', settingController.deleteWallet);
-router.post('/addWalletFromFile', settingController.addWalletFromFile);
+router.post('/addWorkWallet', settingController.addWorkWallet);
+router.post('/deleteWorkWallet', settingController.deleteWorkWallet);
+router.post('/addWorkWalletFromFile', settingController.addWorkWalletFromFile);
 
-router.get('/listWallets', settingController.listWallets);
+router.post('/getWorkWalletBalance', settingController.getWorkWalletBalance);
+
+router.get('/listWorkWallets', settingController.listWorkWallets);
 router.get('/resetAll', settingController.resetAll);
 
 module.exports = router;

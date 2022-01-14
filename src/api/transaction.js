@@ -11,15 +11,14 @@ import { API_URL, client } from "./api";
  * Note : Transaction is the history that was made in the backend. 
  *        We can not add or delete the transaction from list.
  * </pre>
- * @param transactionKind - "buy", "sell" /  that indicates the kind of the transaction 
+ * @param transKind - "buy", "sell" /  that indicates the kind of the transaction 
  */
 
 export async function listTransactions(
-  transactionKind, date
+  date
 ) {
   try {
     let res = await client.post(`${API_URL}/transactions/listTransactions`, {
-      transactionKind : transactionKind,
       date : date
     });
     let data = res.data.data;

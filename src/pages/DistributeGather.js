@@ -5,7 +5,11 @@ import Bot from '../components/Bot'
 
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
-import { startDistribteBot, startGatherBot } from "../api";
+import { 
+  getMainWalletStatus, getBotStatus, 
+  startDistribteBot, startGatherBot,   
+} from "../api";
+import chalk from "chalk";
 
 /**
  * Basic UI module for handling BNB distribute / gather operation
@@ -13,15 +17,12 @@ import { startDistribteBot, startGatherBot } from "../api";
 */
 const DistributeGather = () => {
 
-  const [mainBnbAmount, setMainBnbAmount] = useState(0);
-  const [mainTokenAmount, setMainTokenAmount] = useState(0);
-  const [totalWalletCount, setTotalWalletCount] = useState(0);
-
+  const [mainBnbBalance, setMainBnbBalance] = useState(0);
+  const [mainTokenBalance, setMainTokenBalance] = useState(0);
+  const [totalWorkWalletCount, setTotalWorkWalletCount] = useState(0);
+    
   const [targetResource, setTargetResource] = useState("bnb");
 
-  const [amount, setAmount] = useState(0);              // Amount for distribute 
-  const [percentage, setPercentage] = useState("50");  // Percentage to gather from each wallet.
-  
   const percentageRef = useRef();
   const amountRef = useRef();
 
@@ -34,10 +35,10 @@ const DistributeGather = () => {
 
         <div className="row">
           <div className="form-group col-sm-12 col-md-4">
-            Amount in BNB : {mainBnbAmount}
+            Amount in BNB : {mainBnbBalance} &nbsp; BNB
           </div>
           <div className="form-group col-sm-12 col-md-4">
-            Amount in Token : {mainTokenAmount}
+            Amount in Token : {mainTokenBalance} &nbsp; TOEKN
           </div>
         </div>
 
@@ -47,7 +48,7 @@ const DistributeGather = () => {
 
         <div className="row">
           <div className="form-group col-sm-12 col-md-8">
-            Total work wallets registered : {totalWalletCount}
+            Total work wallets registered : {totalWorkWalletCount}
           </div>
         </div>        
       </div>
@@ -93,17 +94,18 @@ const DistributeGather = () => {
   const percentageFormat = (num) => num + ' %';
   const amountFormat = (num) => num + (targetResource === "bnb" ? " bnb" : " token");  
 
-  function set100Percent(e) {
-    if(e.target.checked) 
-      setPercentage(100);
+  const amountMax = () => {
+    let maxAmount = (targetResource === "bnb") ? mainBnbBalance : mainTokenBalance;
+    return parseFloat(maxAmount);
   }
-
 
   // Parameter : amount in Distribute
   // Parameter : percentage for Gather
-  // TODO : {amount / totalWalletCount} {targetResource} for each wallet. is not working, due to onChange() issue.
   // TODO : Make a class for NumericInputWithMax that extends NumericInput
   const DistributeParameter = () => {
+
+    const [amount, setAmount] = useState(0);              // Amount for distribute 
+
     return (
       <div >
         <div className="row">
@@ -114,16 +116,21 @@ const DistributeGather = () => {
             <label htmlFor="address">Total Amount :</label>
             <NumericInput 
               className="form-control form-control-md"
-              min={0} max={(targetResource === "bnb" ? mainBnbAmount : mainTokenAmount)}
+              min={0} 
+              max={amountMax()}
               id="amount"
               value={amount}
               format={amountFormat}
+              step={0.05} 
+              precision={3}
+              onChange={(value) => setAmount(value)}
               ref={amountRef}
             />
           </div>
 
           <div className="form-group col-sm-12 col-md-7">
-            {amount / totalWalletCount} {targetResource} for each wallet.
+            {totalWorkWalletCount === 0 ? 0 : amount / totalWorkWalletCount} &nbsp; 
+            {targetResource} &nbsp; for each wallet.
           </div>
         </div>
       </div>
@@ -131,6 +138,14 @@ const DistributeGather = () => {
   }
 
   const GatherParameter = () => {
+
+    function set100Percent(e) {
+      if(e.target.checked) 
+        setPercentage(100);
+    }
+    
+    const [percentage, setPercentage] = useState("50");  // Percentage to gather from each wallet.
+
     return (
       <div>
         <div className="row">
@@ -140,8 +155,8 @@ const DistributeGather = () => {
         <div className="row">
           <div className="form-group col-sm-12 col-md-4">
             <NumericInput className="form-control"
-              min={0} max={100} value={50}
-              id="percentage"
+              min={0} max={100}
+              id="percentagegather"
               value={percentage}
               format={percentageFormat}
               ref={percentageRef}
@@ -163,19 +178,23 @@ const DistributeGather = () => {
   };
 
   const callDistributeBot = () => {
-    startDistribteBot(amountRef.value);
+    if(amountRef.current.state.value == 0)
+      return false;
+    startDistribteBot(amountRef.current.state.value, targetResource);
   };
 
   const callGatherBot = () => {
-    startGatherBot(percentageRef.value);
+    if(percentageRef.current.state.value == 0)
+      return false;    
+    startGatherBot(percentageRef.current.state.value, targetResource);
   };
 
   const DistributeHelp = () => {
     return (
-    <div>
-      <p>Pleaes enter the amount to distribute to each wallet.</p>
-      <p> The amount you enter will be evenly distributed to each wallet.</p>
-    </div>
+      <div>
+        <p>Pleaes enter the amount to distribute to each wallet.</p>
+        <p> The amount you enter will be evenly distributed to each wallet.</p>
+      </div>
     );
   }
 
@@ -193,26 +212,44 @@ const DistributeGather = () => {
 
   // Load Settings from the backend database
   // The UI fields accepts the setting values to show in their boxes.
-  const setStatus = async () => {
-    var curStatus = await getBotStatus();
+  const setStatus = () => {
+    
+    console.log("setStatus");
 
+    let promise0 = getMainWalletStatus();
+    let promise1 = getBotStatus();
+  
+    Promise.all(
+      [promise0, promise1]
+    ) .then( function (values) {
+      console.log("status VALUES = \n" + values);
+
+      setMainBnbBalance(values[0].bnbBalance);  
+      setMainTokenBalance(values[0].tokenBalance);
+      setTotalWorkWalletCount(values[1].totalWorkWalletCount);
+
+      console.log (" Main BNB Balance : " + mainBnbBalance + "\nMain TokenBalance : " + mainTokenBalance);
+    }).catch( 
+      (error)=> console.log( chalk.red("Failed in getting bot status") 
+    ));
+  
     // TEST For UI Test
     // var curStatus = {
-    //   mainBnbAmount: 100,
-    //   mainTokenAmount: 200000,
+    //   mainBnbBalance: 100,
+    //   mainTokenBalance: 200000,
     //   tokenInfo: {
     //     name: "DogeCoin",
     //     abbr: "DOGE"
     //   },
     //   mainWalletAddress: "0x4DD589F02844FB048715F7145a8FF70d8506F19e",
     //   botStatus: "buy",
-    //   totalWalletCount: 3000,
+    //   totalWorkWalletCount: 3000,
     // }
 
     // setMainBnbAmount(curStatus.mainBnbAmount);
     // setMainTokenAmount(curStatus.mainTokenAmount);
 
-    // setTotalWalletCount(curStatus.totalWalletCount);
+    // setTotalWorkWalletCount(curStatus.totalWorkWalletCount);
   };
 
 
@@ -222,7 +259,7 @@ const DistributeGather = () => {
    * Get the list of the transactions 
    * to show to the UI.
    */
-   useEffect(() => {
+  useEffect(() => {
     setStatus();
   }, []);
 
@@ -230,11 +267,10 @@ const DistributeGather = () => {
   return (
     <div>
       <Tabs defaultActiveKey="distributeBot" className="mb-3"
-        onSelect={(curIndex, lastIndex) => {          
+        onSelect={(curIndex, lastIndex) => {
+          setStatus();
           if (curIndex === "distributeBot") {
-
           } else if (curIndex === "gatherBot") {
-
           }
         }}
       >

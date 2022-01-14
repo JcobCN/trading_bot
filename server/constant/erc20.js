@@ -88,18 +88,6 @@ module.exports = {
     },
   ],
 
-  // For Pancakeswap
-  PANCAKESWAP_V2: {
-    name: "wBNB",
-    router: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
-    wNativeToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
-    buyMethod: [
-      "0x7ff36ab5",     //swapExactETHForTokens
-      "0xb6f9de95",     //swapExactETHForTokensSupportingFeeOnTransferTokens
-      "0xfb3bdb41"      //swapETHForExactTokens
-    ],
-  },
-
   // Max big Integer 2^256 - 1;
   MAX_BIGINT: 115792089237316195423570985008687907853269984665640564039457584007913129639935
   // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
