@@ -4,7 +4,6 @@ import { w3cwebsocket } from "websocket";
 
 import { confirmAlert } from "react-confirm-alert";
 import { Button } from "react-bootstrap";
-// import io from "socket.io-client";
 import { stopBot } from "../api";
 
 import 'react-confirm-alert/src/react-confirm-alert.css';

@@ -69,8 +69,9 @@
   "scripts": {
     "start-server": "node server/app.js",
     "start-devserver": "nodemon server/app.js --watch server/*",
-    "start-front": "set PORT=3006 && react-scripts start",
+    "start-front": "set BROWSWER=chrome && set PORT=3006 && react-scripts start",
     "start": "concurrently \"npm run start-devserver\" \"npm run start-front\" --kill-others --kill-others-on-fail",
+    "work": "concurrently \"npm run start-server\" \"npm run start-front\" --kill-others --kill-others-on-fail",
     "safe": "node server/test.js",
     "build": "react-scripts build",
     "test": "react-scripts test",

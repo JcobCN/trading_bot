@@ -8,35 +8,6 @@ const {
 const {Transaction, MainSetting, WorkWallet, BotStatus} = require("../models");
 const app = require("../app");
 
-/////////////////////////////////////////////////////////////////////////
-//                          FOR SOCKET OPERATION                       //
-/////////////////////////////////////////////////////////////////////////
-/*
-const express = require('express');
-const http = require ('http');
-
-app = express();
-var port = 9081;
-const server = http.createServer(app);
-
-server.listen(port, function(){
-  console.log('app listening on port: '+port);
-});
-const sockets = {};
-const io = require("socket.io")(server);
-var socketInstance;
-io.on("connection", (socket) => {
-  sockets[sessionId] = socket.id;
-  // The sockets object is stored in Express so it can be grabbed in a route
-  server.set("sockets", sockets);
-  console.log(`Client connected: ${socket.id}`)
-  socketInstance = io.to(thisSocketId);
-});
-// The io instance is set in Express so it can be grabbed in a route
-app.set("io", io);
-*/
-/////////////////////////////////////////////////////////////////////////
-
 function sendProgress(data) {
   var aWss = app.wss.getWss("/");
   aWss.clients.forEach( (client) => {
